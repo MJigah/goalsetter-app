@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
 import { FaSignInAlt } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { login, reset } from "../features/auth/authSlice";
+import Spinner from "../components/Spinner";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -9,16 +14,45 @@ function Login() {
 
   const { email, password } = formData;
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, isLoading, isSuccess, isError, message } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+
+    if (isSuccess || user) {
+      navigate("/");
+    }
+
+    dispatch(reset());
+  });
+
   const onChange = (e) => {
     setFormData((prevState) => ({
-        ...prevState,
-        [e.target.name]: e.target.value,
-    }))
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  const onSubmit = (e) => {
-    e.preventDefault()
+  const submitHandler = (e) => {
+    e.preventDefault();
+    const userData = {
+      email,
+      password,
+    };
+    dispatch(login(userData));
+  };
+
+  if (isLoading) {
+    return <Spinner />;
   }
+
   return (
     <>
       <section className="heading">
@@ -28,8 +62,7 @@ function Login() {
         <p>Login and start setting goals</p>
       </section>
       <section>
-        <form onSubmit={onsubmit}>
-
+        <form onSubmit={submitHandler}>
           <div className="form-group">
             <input
               type="email"
@@ -54,7 +87,9 @@ function Login() {
             />
           </div>
           <div className="form-group">
-            <button className="btn btn-block" type='submit'>Submit</button>
+            <button className="btn btn-block" type="submit">
+              Submit
+            </button>
           </div>
         </form>
       </section>
