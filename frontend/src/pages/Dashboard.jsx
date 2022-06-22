@@ -16,15 +16,16 @@ function Dashboard() {
   );
 
   useEffect(() => {
-    if (isError) {
-      console.log(message); 
-    }
-
     if (!user) {
       navigate("/login");
+    } else {
+      dispatch(getGoals());
     }
 
-    dispatch(getGoals());
+    if (isError) {
+      console.log(message);
+    }
+
     return () => {
       dispatch(reset());
     };
